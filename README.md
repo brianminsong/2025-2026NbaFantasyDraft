@@ -13,6 +13,6 @@ Sort to see players by their :
 
 ## Uses my basketball-reference chrome extension
 This [extension](https://github.com/brianminsong) that I made was used to get a more "accurate" rating of players.
-
+Until I can figure out how to make sure all my creds are private because I am too lazy to do that right now I as I am feeling really hot on this grind to get this done, it'll stay private but just dm me for info.
 
 
