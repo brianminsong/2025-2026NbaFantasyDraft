@@ -1,12 +1,18 @@
-# React + Vite
+# NBA Fantasy Draft Tool for the Sleeper Platform
+Hello I got tired of manually finding the best "steals" and underrated players in fantasy basketball. So I made this tool. It uses the default sleeper scoring system. Just provide your draftID found like 
+- https://sleeper.com/draft/nba/DRAFT_ID_IS_THIS
+As well as the number of teams in your league, and your draft #.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Features
+See what your pick #'s are so you can begin to "scope" out a player for your rounds pick.
+Sort to see players by their :
+- average sleeper score
+- average of their highest sleeper weekly game score
+- average of their 2 highest sleeper weekly game scores
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Uses my basketball-reference chrome extension
+This [extension](https://github.com/brianminsong) that I made was used to get a more "accurate" rating of players.
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
