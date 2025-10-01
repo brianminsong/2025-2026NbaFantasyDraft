@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { use, useEffect, useRef, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, Button, FormControl, Switch, TextField, Typography } from '@mui/material';
+import { Box, Button, Checkbox, FormControl, FormControlLabel, Switch, TextField, Typography } from '@mui/material';
 import * as XLSX from 'xlsx';
 import  {playersList}  from '../sourceData/players';
 import { GridToolbar } from '@mui/x-data-grid/internals';
@@ -15,6 +15,8 @@ export const Home = () => {
     const [availableFiltered, setAvailableFiltered] = useState(false);
     const [myTeamFiltered, setMyTeamFiltered] = useState(false);
     const condensed = useRef(false);
+    const thirdRoundReversal = useRef(false);
+    const [draftPicks, setDraftPicks] = useState([]);
     const initializeDefaultDataset = () => {
         let tempdataset = {
             maxPlayersPerTeam: 15,
@@ -34,6 +36,7 @@ export const Home = () => {
     useEffect(() => {
         if(!initialSet){
             setInitialSet(true);
+            calculateDraftPickNo();
             setSelectedColumns(columns);
         }
 
@@ -49,7 +52,7 @@ export const Home = () => {
     
 
 
-    const calculateDraftPickNo = () => {
+    const calculateDraftPickNo2 = () => {
         // N pick = (totalTeams * 2) - (2 * N), and then (2 * N) - 1
         // or 24-2n and 2n-1
         let maxPicks = dataset.totalTeams * dataset.maxPlayersPerTeam;
@@ -72,6 +75,45 @@ export const Home = () => {
         }
         return picks;
     }
+
+    const calculateDraftPickNo = () => {
+        let thirdReversal = thirdRoundReversal.current
+        let totTeams = dataset.totalTeams;
+        let pickNo = dataset.draftPosition;
+        let x = 2 * (totTeams - pickNo) + 1;
+        let y = (2 * pickNo) - 1;
+        let index = pickNo;
+        let picks = [];
+        picks.push(pickNo);
+        let thirdReset = false;
+
+        while(picks.length <= 15){
+            if(thirdReversal && picks.length > 2 && !thirdReset){
+                picks.pop();
+                index = 2 * totTeams;
+                index += (totTeams - pickNo + 1);
+                picks.push(index);
+                thirdReset = true;
+            }
+            else{
+                index += x;
+                picks.push(index);
+            }
+            if(picks.length == 15){
+                break;
+            }
+            index += y;
+            picks.push(index);
+        }
+        if(picks.length > 15){
+            picks = picks.slice(0, 15);
+        }
+        setDraftPicks(picks);
+    }
+
+    useEffect(() => {
+        calculateDraftPickNo();
+    }, [dataset]);
 
     const handleDraftStatus = async () => {
         try {
@@ -115,7 +157,7 @@ export const Home = () => {
     const handleMyTeamFiltered = (event) => {
         setMyTeamFiltered(event.target.checked);
         if(event.target.checked){
-            let filteredPlayers = masterPlayers.filter(player => calculateDraftPickNo().includes(player.pickNo));
+            let filteredPlayers = masterPlayers.filter(player => draftPicks.includes(player.pickNo));
             setPlayers(filteredPlayers);
         }
         else{
@@ -169,7 +211,7 @@ export const Home = () => {
                 newPlayersList = newPlayersList.filter(player => player.pickedBy === "null");
             }
             if(myTeamFiltered){
-                newPlayersList = newPlayersList.filter(player => calculateDraftPickNo().includes(player.pickNo));
+                newPlayersList = newPlayersList.filter(player => draftPicks.includes(player.pickNo));
             }
             setPlayers(newPlayersList);
         }
@@ -215,6 +257,9 @@ export const Home = () => {
                     <TextField sx={{margin: 1, input: { color: 'white' }, label: {color: "lightblue"}, fieldset: { borderColor: "lightblue" }}} label="Draft ID" variant="outlined" size={'small'} onChange={(event) => handleInputChange(event.target.value, "draftId")}/>
                     <TextField sx={{margin: 1, input: { color: 'white' }, label: {color: "lightblue"}, fieldset: { borderColor: "lightblue" }}} label="# of teams" variant="outlined" size={'small'} onChange={(event) => handleInputChange(event.target.value, "teamNo")}/>
                     <TextField sx={{margin: 1, input: { color: 'white' }, label: {color: "lightblue"}, fieldset: { borderColor: "lightblue" }}} label="Pick #" variant="outlined" size={'small'} onChange={(event) => handleInputChange(event.target.value, "pickNo")}/>
+                    <FormControlLabel label={<Typography>3rd Round Reversal?</Typography>} sx={{label: {margin: 0}}} control={
+                        <Checkbox sx={{margin: 1, color: "lightblue", label: {color: "lightblue"}, paddingRight: 0}} label="3rd round reversal" onChange={(event) => {thirdRoundReversal.current = event.target.checked; calculateDraftPickNo()}}/> }>
+                    </FormControlLabel>
                 </Box>
                 <Box>
                     <Button sx={{marginLeft: 0.5, marginRight: 0.5}} variant='contained' onClick={() => {
@@ -232,10 +277,10 @@ export const Home = () => {
                     <Typography variant='caption'>Show your players</Typography>
                 </Box>
             </Box>
-            <Box>
+            <Box paddingRight={1}>
                 <Typography>You are pick #{dataset.draftPosition} in the draft out of {dataset.totalTeams} teams</Typography>
                 <Typography>Current pick {(liveDraft.length % dataset.totalTeams) + 1} in the {Math.floor(liveDraft.length / dataset.totalTeams) + 1} round. (#{liveDraft.length + 1} pick overall)</Typography>
-                <Typography>Your picks are {calculateDraftPickNo().join(', ')}</Typography>
+                <Typography>Your picks are {draftPicks.join(', ')}</Typography>
             </Box>
         </Box>
         <Box width={condensed.current == true ? "60%" : "98%"} height={"85vh"} marginLeft={2} marginRight={2}>
@@ -269,7 +314,7 @@ export const Home = () => {
                     }},
                 }}
                 getRowClassName={(params) =>{
-                        return (calculateDraftPickNo().includes(params.row.pickNo)) ? "me" : (params.row.pickedBy === "null" ? "blank" : "else");}
+                        return (draftPicks.includes(params.row.pickNo)) ? "me" : (params.row.pickedBy === "null" ? "blank" : "else");}
                 }
                 />
 
