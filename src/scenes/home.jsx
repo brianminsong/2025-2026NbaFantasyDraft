@@ -1,4 +1,4 @@
-import React, { use, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, Button, Checkbox, FormControl, FormControlLabel, Switch, TextField, Typography } from '@mui/material';
 import * as XLSX from 'xlsx';
@@ -50,31 +50,6 @@ export const Home = () => {
         condensed.current = false;
     }
     
-
-
-    const calculateDraftPickNo2 = () => {
-        // N pick = (totalTeams * 2) - (2 * N), and then (2 * N) - 1
-        // or 24-2n and 2n-1
-        let maxPicks = dataset.totalTeams * dataset.maxPlayersPerTeam;
-        let count = dataset.draftPosition;
-        let picks = [];
-        let a = (dataset.totalTeams * 2) - (2 * dataset.draftPosition) + 1;
-        let b = (2 * dataset.draftPosition) - 1;
-        picks.push(dataset.draftPosition);
-        while (count <= maxPicks){
-            count += a;
-            if(picks.length >= dataset.maxPlayersPerTeam){
-                break;
-            }
-            picks.push(count);
-            count += b;
-            if(picks.length >= dataset.maxPlayersPerTeam){
-                break;
-            }
-            picks.push(count);
-        }
-        return picks;
-    }
 
     const calculateDraftPickNo = () => {
         let thirdReversal = thirdRoundReversal.current
@@ -177,10 +152,14 @@ export const Home = () => {
         //     newDataset.playerId = value;
         // }
         else if(kind === "teamNo"){
-            newDataset.totalTeams = parseInt(value);
+            if(value.length > 0){
+                newDataset.totalTeams = parseInt(value);
+            }
         }
         else if(kind === "pickNo"){
-            newDataset.draftPosition = parseInt(value);
+            if(value.length > 0){
+                newDataset.draftPosition = parseInt(value);
+            }
         }
         setDataset(newDataset);
     }
